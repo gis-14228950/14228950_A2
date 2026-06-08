@@ -88,12 +88,12 @@ coords = env[, c("X", "Y")]
 round(cor(habitat), 2)
 
 #screen the abiotic group for collinearity
-abiotic.vif = vifstep(abiotic, th = 10)
+abiotic.vif = vifstep(abiotic, th = 5)
 abiotic.vif
 abiotic = exclude(abiotic, abiotic.vif)
 
 #screen the habitat group for collinearity
-habitat.vif = vifstep(habitat, th = 10)
+habitat.vif = vifstep(habitat, th = 5)
 habitat.vif
 habitat = exclude(habitat, habitat.vif)
 
@@ -110,3 +110,31 @@ space = data.frame(scores(pcnm.xy))
 
 #generat number of spatial predictors
 ncol(space)
+
+#===================== Forward selection within groups =========================
+
+set.seed(11)
+
+#function to forward select variables within a predictor group using the double stopping rule
+selectVars = function(group){
+  #full and null models for the group
+  full = rda(spe.hel ~ ., data = group)
+  null = rda(spe.hel ~ 1, data = group)
+  #global test of the group
+  print(anova(full, permutations = 999))
+  #forward selection bounded by the global adjusted R squared
+  sel = ordiR2step(null, scope = formula(full), R2scope = TRUE,
+                   direction = "forward", permutations = 999, trace = FALSE)
+  #return the group reduced to its selected variables
+  group[, attr(terms(formula(sel)), "term.labels"), drop = FALSE]
+}
+
+#forward select each multi-variable group
+abiotic.sel = selectVars(abiotic)
+habitat.sel = selectVars(habitat)
+space.sel   = selectVars(space)
+
+#inspect the retained variables in each group
+names(abiotic.sel)
+names(habitat.sel)
+names(space.sel)
