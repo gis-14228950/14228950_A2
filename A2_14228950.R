@@ -49,3 +49,14 @@ min(spe)
 
 #confirm the species matrix
 dim(spe)
+
+#======================== Community data processing ============================
+
+#count site occurrences per species
+colSums(spe > 0)
+
+#Hellinger transform the abundances
+spe.hel = decostand(spe, method = "hellinger")
+
+#inspect
+head(spe.hel)
