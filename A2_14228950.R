@@ -138,3 +138,19 @@ space.sel   = selectVars(space)
 names(abiotic.sel)
 names(habitat.sel)
 names(space.sel)
+
+#========================= Test the unique fractions ===========================
+
+set.seed(11)
+
+#pure abiotic fraction, conditioned on the other three groups
+anova(rda(spe.hel, abiotic.sel, cbind(manage, habitat.sel, space.sel)), permutations = 999)
+
+#pure management fraction
+anova(rda(spe.hel, manage, cbind(abiotic.sel, habitat.sel, space.sel)), permutations = 999)
+
+#pure habitat fraction
+anova(rda(spe.hel, habitat.sel, cbind(abiotic.sel, manage, space.sel)), permutations = 999)
+
+#pure spatial fraction
+anova(rda(spe.hel, space.sel, cbind(abiotic.sel, manage, habitat.sel)), permutations = 999)
