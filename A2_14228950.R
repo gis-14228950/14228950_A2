@@ -14,3 +14,38 @@ library(adespatial)
 
 #variance inflation factors
 library(usdm)
+
+#===================== Data import and integrity checks ========================
+
+#read in the community matrix
+comm = read.csv("scot_beetle_community.csv", row.names = 1)
+
+#read in the environment table
+env = read.csv("scot_beetle_env.csv", row.names = 1)
+
+#inspect
+head(comm)
+head(env)
+
+#confirm dimensions
+dim(comm)
+dim(env)
+
+#check site labels 
+all(comm$Sites == env$Sites)
+
+#check for missing values
+sum(is.na(comm))
+sum(is.na(env))
+
+#check for duplicated sites
+any(duplicated(env$Sites))
+
+#drop the Sites column
+spe = comm[, -1]
+
+#check for negative abundances
+min(spe)
+
+#confirm the species matrix
+dim(spe)
