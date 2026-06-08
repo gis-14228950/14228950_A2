@@ -60,3 +60,42 @@ spe.hel = decostand(spe, method = "hellinger")
 
 #inspect
 head(spe.hel)
+
+#====================== Environmental data processing ==========================
+
+#inspect distributions of the candidate predictors
+summary(env)
+
+#log transform strictly positive variables
+logVars = c("Org", "AvailP", "AvailK", "Litter", "Plants_m2", "Elevation")
+env[logVars] = log(env[logVars])
+
+#square root transform the skewed cover variable containing zeros
+env$Bryophyte = sqrt(env$Bryophyte)
+
+#standardise all continuous predictors to zero mean and unit variance
+env.z = decostand(env[, 2:15], method = "standardize")
+
+#build the four predictor groups
+abiotic = env.z[, c("Elevation", "pH", "Moist", "Org")]
+manage  = env.z[, "Management", drop = FALSE]
+habitat = env.z[, c("AvailP", "AvailK", "Litter", "Bryophyte", "Plants_m2",
+                    "CanopyHeight", "Stem.density", "Biom0_5", "Repro.biom")]
+
+#keep the coordinates (untransformed) for the spatial section
+coords = env[, c("X", "Y")]
+
+#=============================Collinearity screening=======================================
+
+#inspect correlations within the habitat group
+round(cor(habitat), 2)
+
+#screen the abiotic group for collinearity
+abiotic.vif = vifstep(abiotic, th = 10)
+abiotic.vif
+abiotic = exclude(abiotic, abiotic.vif)
+
+#screen the habitat group for collinearity
+habitat.vif = vifstep(habitat, th = 10)
+habitat.vif
+habitat = exclude(habitat, habitat.vif)
