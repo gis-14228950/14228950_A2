@@ -9,9 +9,6 @@ setwd("W:/1UOM/71922 Spactial Ecology/assessment2/Assessment2_Data_GEOG71922/Bee
 #community ordination and variation partitioning
 library(vegan)
 
-#spatial eigenvector maps and forward selection
-library(adespatial)
-
 #variance inflation factors
 library(usdm)
 
@@ -85,7 +82,7 @@ habitat = env.z[, c("AvailP", "AvailK", "Litter", "Bryophyte", "Plants_m2",
 #keep the coordinates (untransformed) for the spatial section
 coords = env[, c("X", "Y")]
 
-#=============================Collinearity screening=======================================
+#========================= Collinearity screening ==============================
 
 #inspect correlations within the habitat group
 round(cor(habitat), 2)
@@ -99,3 +96,17 @@ abiotic = exclude(abiotic, abiotic.vif)
 habitat.vif = vifstep(habitat, th = 10)
 habitat.vif
 habitat = exclude(habitat, habitat.vif)
+
+#============================= Spatial variable ================================
+
+#build distance matrix
+dist.xy = dist(coords)
+
+#approximate spatial structure
+pcnm.xy = pcnm(dist.xy)
+
+#extract the PCNM axes as candidate spatial predictors
+space = data.frame(scores(pcnm.xy))
+
+#generat number of spatial predictors
+ncol(space)
