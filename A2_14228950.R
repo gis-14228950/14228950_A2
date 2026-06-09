@@ -4,7 +4,7 @@
 #===============================================================================
 
 #Set working directory
-setwd("W:/1UOM/71922 Spactial Ecology/assessment2/Assessment2_Data_GEOG71922/Beetles")
+setwd("Assessment2_Data_GEOG71922/Beetles")
 
 #community ordination and variation partitioning
 library(vegan)
@@ -141,6 +141,38 @@ space.sel   = selectVars(space)
 names(abiotic.sel)
 names(habitat.sel)
 names(space.sel)
+
+#========================= Variation partitioning ==============================
+
+#Combine the two management components for the main three-driver comparison
+management.sel = cbind(manage, habitat.sel)
+
+#run three-way variation partitioning
+vp3 = varpart(spe.hel, abiotic.sel, management.sel, space.sel)
+
+#inspect the adjusted R2 fractions
+vp3
+
+#plot the partition diagram
+plot(vp3,
+     Xnames = c("Environment", "Management", "Space"),
+     bg = c("white", "white", "white"))
+
+#full RDA model
+all.sel = cbind(environment.sel, manage, space.sel)
+rda.full = rda(spe.hel ~ ., data = all.sel)
+
+#overall adjusted R2 of the full selected model
+RsquareAdj(rda.full)
+
+#overall significance of the full model
+anova(rda.full, permutations = 999)
+
+#test each term in the full model
+anova(rda.full, by = "terms", permutations = 999)
+
+#test constrained axes
+anova(rda.full, by = "axis", permutations = 999)
 
 #========================= Test the unique fractions ===========================
 
