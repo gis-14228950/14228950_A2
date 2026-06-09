@@ -3,8 +3,9 @@
 # Student ID: 14228950
 #===============================================================================
 
-#Set working directory
-setwd("Assessment2_Data_GEOG71922/Beetles")
+#read files
+comm = read.csv("scot_beetle_community.csv", row.names = 1)
+env  = read.csv("scot_beetle_env.csv", row.names = 1)
 
 #community ordination and variation partitioning
 library(vegan)
@@ -178,17 +179,14 @@ anova(rda.full, by = "axis", permutations = 999)
 
 set.seed(11)
 
-#pure abiotic fraction, conditioned on the other three groups
-anova(rda(spe.hel, abiotic.sel, cbind(manage, habitat.sel, space.sel)), permutations = 999)
+#pure environmental fraction
+anova(rda(spe.hel, abiotic.sel, cbind(management.sel, space.sel)), permutations = 999)
 
 #pure management fraction
-anova(rda(spe.hel, manage, cbind(abiotic.sel, habitat.sel, space.sel)), permutations = 999)
-
-#pure habitat fraction
-anova(rda(spe.hel, habitat.sel, cbind(abiotic.sel, manage, space.sel)), permutations = 999)
+anova(rda(spe.hel, management.sel, cbind(abiotic.sel, space.sel)), permutations = 999)
 
 #pure spatial fraction
-anova(rda(spe.hel, space.sel, cbind(abiotic.sel, manage, habitat.sel)), permutations = 999)
+anova(rda(spe.hel, space.sel, cbind(abiotic.sel, management.sel)), permutations = 999)
 
 #============================= Export the results ==============================
 
