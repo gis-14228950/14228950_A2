@@ -160,7 +160,7 @@ plot(vp3,
      bg = c("white", "white", "white"))
 
 #full RDA model
-all.sel = cbind(environment.sel, manage, space.sel)
+all.sel = cbind(abiotic.sel, management.sel, space.sel)
 rda.full = rda(spe.hel ~ ., data = all.sel)
 
 #overall adjusted R2 of the full selected model
@@ -175,18 +175,37 @@ anova(rda.full, by = "terms", permutations = 999)
 #test constrained axes
 anova(rda.full, by = "axis", permutations = 999)
 
-#========================= Test the unique fractions ===========================
+#===================== Test the unique fractions 4 driver ======================
 
 set.seed(11)
 
-#pure environmental fraction
-anova(rda(spe.hel, abiotic.sel, cbind(management.sel, space.sel)), permutations = 999)
+#pure abiotic fraction, conditioned on the other three groups
+anova(rda(spe.hel, abiotic.sel, cbind(manage, habitat.sel, space.sel)), permutations = 999)
 
 #pure management fraction
-anova(rda(spe.hel, management.sel, cbind(abiotic.sel, space.sel)), permutations = 999)
+anova(rda(spe.hel, manage, cbind(abiotic.sel, habitat.sel, space.sel)), permutations = 999)
+
+#pure habitat fraction
+anova(rda(spe.hel, habitat.sel, cbind(abiotic.sel, manage, space.sel)), permutations = 999)
 
 #pure spatial fraction
-anova(rda(spe.hel, space.sel, cbind(abiotic.sel, management.sel)), permutations = 999)
+anova(rda(spe.hel, space.sel, cbind(abiotic.sel, manage, habitat.sel)), permutations = 999)
+
+#===================== Test fractions 3 broad driver ===========================
+
+set.seed(11)
+
+#Pure environmental fraction
+anova(rda(spe.hel, abiotic.sel, cbind(management.sel, space.sel)),
+      permutations = 999)
+
+#Pure management fraction
+anova(rda(spe.hel, management.sel, cbind(abiotic.sel, space.sel)),
+      permutations = 999)
+
+#Pure spatial fraction
+anova(rda(spe.hel, space.sel, cbind(abiotic.sel, management.sel)),
+      permutations = 999)
 
 #============================= Export the results ==============================
 
