@@ -201,24 +201,43 @@ sumRda = summary(rda.env)
 sumRda$cont$importance[2, "RDA1"]
 sumRda$cont$importance[2, "RDA2"]
 
-#set up an ordination space
-plot(rda.env, type = "n", scaling = 3)
-
-#fit and add vectors
+#Fit
 fit = envfit(rda.env, env.sel, perm = 999)
-plot(fit, add = TRUE, col = "black", cex = 0.7)
 
-#colour the sites
+#Calculate percentage
+rda_imp = summary(rda.env)$cont$importance
+rda1_lab = paste0("RDA1 (", round(rda_imp[2, "RDA1"] * 100, 1), "%)")
+rda2_lab = paste0("RDA2 (", round(rda_imp[2, "RDA2"] * 100, 1), "%)")
+
+#Create colour ramp
 colvec = colorRampPalette(c("seagreen", "orange", "red"))(20)
-points(rda.env, display = "sites", scaling = 3, pch = 21,
-       bg = colvec[env$Management], cex = 1.4)
 
-#add the species
-points(rda.env, display = "species", pch = 3, cex = 1, col = "grey40")
+#Set up an ordination plot
+plot(rda.env, type = "n", scaling = 2,
+     xlab = rda1_lab,
+     ylab = rda2_lab,
+     main = "RDA of beetle community composition")
 
-#add legend
-legend("bottomright", legend = c("low", "high"), pch = 21,
-       pt.bg = c("seagreen", "red"), bty = "n", title = "Management")
+#Add sampling sites
+points(rda.env, display = "sites", scaling = 2,
+       pch = 21,
+       bg = colvec[env$Management],
+       col = "black",
+       cex = 1.3)
+
+#Add significant fitted vectors
+plot(fit, add = TRUE, p.max = 0.05,
+     col = "black",
+     cex = 0.8)
+
+#Add legend
+legend("bottomright",
+       legend = c("Low management", "High management"),
+       pch = 21,
+       pt.bg = c("seagreen", "red"),
+       col = "black",
+       bty = "n",
+       title = "Management intensity")
 
 #extract the RDA site scores on the first two axes
 site.sc = scores(rda.env, display = "sites", choices = 1:2, scaling = 3)
