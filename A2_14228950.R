@@ -12,6 +12,9 @@ library(vegan)
 #variance inflation factors
 library(usdm)
 
+#export result for GIS
+library(sf)
+
 #===================== Data import and integrity checks ========================
 
 #read in the community matrix
@@ -154,3 +157,45 @@ anova(rda(spe.hel, habitat.sel, cbind(abiotic.sel, manage, space.sel)), permutat
 
 #pure spatial fraction
 anova(rda(spe.hel, space.sel, cbind(abiotic.sel, manage, habitat.sel)), permutations = 999)
+
+#============================= Export the results ==============================
+
+#constrained ordination
+env.sel = cbind(abiotic.sel, manage, habitat.sel)
+rda.env = rda(spe.hel ~ ., data = env.sel)
+
+#explanatory power of the first two axes
+sumRda = summary(rda.env)
+sumRda$cont$importance[2, "RDA1"]
+sumRda$cont$importance[2, "RDA2"]
+
+#set up an ordination space
+plot(rda.env, type = "n", scaling = 3)
+
+#fit and add vectors
+fit = envfit(rda.env, env.sel, perm = 999)
+plot(fit, add = TRUE, col = "black", cex = 0.7)
+
+#colour the sites
+colvec = colorRampPalette(c("seagreen", "orange", "red"))(20)
+points(rda.env, display = "sites", scaling = 3, pch = 21,
+       bg = colvec[env$Management], cex = 1.4)
+
+#add the species
+points(rda.env, display = "species", pch = 3, cex = 1, col = "grey40")
+
+#add legend
+legend("bottomright", legend = c("low", "high"), pch = 21,
+       pt.bg = c("seagreen", "red"), bty = "n", title = "Management")
+
+#extract the RDA site scores on the first two axes
+site.sc = scores(rda.env, display = "sites", choices = 1:2, scaling = 3)
+
+#combine coordinates, site scores and the raw management gradient
+sites.out = data.frame(coords, site.sc, Manage = env$Management)
+
+#convert to spatial points in British National Grid
+sites.sf = st_as_sf(sites.out, coords = c("X", "Y"), crs = 27700)
+
+#write to a shapefile for ArcGIS
+st_write(sites.sf, "beetle_sites.shp", delete_layer = TRUE)
